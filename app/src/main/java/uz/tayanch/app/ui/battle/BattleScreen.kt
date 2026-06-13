@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,16 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
-import uz.tayanch.app.ui.theme.SuccessGreen
-import uz.tayanch.app.ui.theme.TayanchTheme
+import org.koin.androidx.compose.koinViewModel
 import uz.tayanch.app.R
 import uz.tayanch.app.data.dto.QuizQuestionDto
 import uz.tayanch.app.data.security.SecureClock
@@ -47,6 +48,8 @@ import uz.tayanch.app.ui.components.SecurityNote
 import uz.tayanch.app.ui.components.UiState
 import uz.tayanch.app.ui.preview.PreviewSamples
 import uz.tayanch.app.ui.security.SecureScreenEffect
+import uz.tayanch.app.ui.theme.SuccessGreen
+import uz.tayanch.app.ui.theme.TayanchTheme
 
 @Composable
 fun BattleScreen(
@@ -55,6 +58,16 @@ fun BattleScreen(
 ) {
     SecureScreenEffect()
     LaunchedEffect(Unit) { vm.load() }
+
+    // Pillar 9 — leaving the app mid-round forfeits it (anti-cheat).
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) vm.onBackgrounded()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     when (vm.loadState) {
         is UiState.Loading -> Searching()

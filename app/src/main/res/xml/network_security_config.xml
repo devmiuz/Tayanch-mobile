@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Pillar 11 (Transport Security): cleartext HTTP is forbidden app-wide, so the
-  client refuses to talk to anything that is not HTTPS/WSS. The localhost entry
-  exists only so a developer can point the Ktor client at a local backend during
-  testing without weakening production transport rules.
+  Pillar 11/20 (Transport Security): cleartext HTTP is forbidden app-wide, so the
+  client refuses to talk to anything that is not HTTPS. The localhost / 10.0.2.2
+  entries exist only so a developer can point the client at a locally running
+  FastAPI backend during testing without weakening production transport rules.
+
+  Pillar 18 (Certificate Pinning): the production host is pinned at the platform
+  level here AND in OkHttp's CertificatePinner (NetworkModule.realClient). Replace
+  the placeholder SPKI digests with the real leaf + backup pins before shipping.
 -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="false" />
+
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.tayanch.uz</domain>
+        <pin-set>
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
     </domain-config>
 </network-security-config>

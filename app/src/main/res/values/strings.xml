@@ -9,7 +9,7 @@
     <string name="got_it">Tushunarli</string>
 
     <!-- Auth -->
-    <string name="app_tagline">Karyera tayanchingiz</string>
+    <string name="app_tagline">Kasbiy faoliyatingiz ko\'makchisi</string>
     <string name="tab_login">Kirish</string>
     <string name="tab_register">Ro\'yxatdan o\'tish</string>
     <string name="field_phone">Telefon raqami</string>
@@ -21,6 +21,10 @@
     <string name="btn_biometric_unlock">Biometrika bilan kirish</string>
     <string name="auth_security_note">Tokenlar apparat himoyali Keystore kaliti bilan saqlanadi · ekran tasviri bloklangan (FLAG_SECURE)</string>
     <string name="error_auth_failed">Kirishda xatolik</string>
+    <string name="error_password_breached">Bu parol ma\'lumotlar sizib chiqishida topilgan, boshqasini tanlang</string>
+    <string name="error_session_replaced">Sessiya boshqa qurilmada ochildi. Qaytadan kiring.</string>
+    <string name="root_blocked_title">Qurilma xavfsiz emas</string>
+    <string name="root_blocked_body">Ilova root qilingan yoki o\'zgartirilgan qurilmada ishlay olmaydi. Ma\'lumotlaringiz xavfsizligini ta\'minlash uchun oddiy qurilmadan foydalaning.</string>
     <string name="pw_strength_label">Mustahkamlik: %1$s</string>
     <string name="pw_strength_hint">Mustahkamlik: %1$s — ro\'yxatdan o\'tish uchun kamida \"Yaxshi\" bo\'lsin</string>
     <string name="pw_too_weak">Juda kuchsiz</string>
@@ -140,6 +144,7 @@
     <string name="quiz_correct">To\'g\'ri! +%1$d XP</string>
     <string name="quiz_incorrect">Unchalik emas</string>
     <string name="quiz_saved_offline">Oflayn saqlandi — internet qaytganda sinxronlanadi</string>
+    <string name="quiz_voided">Savol bekor qilindi — ilovadan chiqdingiz (anti-chit)</string>
     <string name="report_title">Bu savol haqida shikoyat</string>
     <string name="report_body">Davom etishingiz mumkin — shikoyat fonda yuklanadi.</string>
     <string name="report_flag_wrong_key">Noto\'g\'ri javob kaliti</string>

@@ -2,7 +2,6 @@ package uz.tayanch.app.ui.quiz
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -51,10 +51,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
-import uz.tayanch.app.ui.theme.SuccessGreen
-import uz.tayanch.app.ui.theme.TayanchTheme
+import org.koin.androidx.compose.koinViewModel
 import uz.tayanch.app.R
 import uz.tayanch.app.data.dto.QuestionType
 import uz.tayanch.app.data.dto.QuizQuestionDto
@@ -65,6 +66,8 @@ import uz.tayanch.app.ui.components.SecurityNote
 import uz.tayanch.app.ui.components.StateContent
 import uz.tayanch.app.ui.preview.PreviewSamples
 import uz.tayanch.app.ui.security.SecureScreenEffect
+import uz.tayanch.app.ui.theme.SuccessGreen
+import uz.tayanch.app.ui.theme.TayanchTheme
 
 @Composable
 fun QuizScreen(
@@ -99,6 +102,16 @@ private fun QuizActive(vm: QuizViewModel, onFinish: () -> Unit) {
                 delay(250)
             }
         }
+    }
+
+    // Pillar 9 — leaving the app mid-question voids it (anti-cheat).
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) vm.onBackgrounded()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     var showReport by remember { mutableStateOf(false) }
@@ -284,6 +297,7 @@ private fun InputAnswer(inputAnswer: String, reviewing: Boolean, onSetInput: (St
 private fun ReviewBanner(reviewing: QuizPhase.Reviewing) {
     val grade = reviewing.grade
     val (label, color) = when {
+        reviewing.voided -> stringResource(R.string.quiz_voided) to MaterialTheme.colorScheme.error
         reviewing.savedOffline -> stringResource(R.string.quiz_saved_offline) to MaterialTheme.colorScheme.tertiary
         grade?.is_correct == true -> stringResource(R.string.quiz_correct, grade.xp_earned) to SuccessGreen
         else -> stringResource(R.string.quiz_incorrect) to MaterialTheme.colorScheme.error

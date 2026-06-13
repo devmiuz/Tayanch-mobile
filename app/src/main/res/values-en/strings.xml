@@ -19,6 +19,10 @@
     <string name="btn_biometric_unlock">Unlock with biometrics</string>
     <string name="auth_security_note">Tokens stored with a hardware-backed Keystore key · screen capture blocked (FLAG_SECURE)</string>
     <string name="error_auth_failed">Authentication failed</string>
+    <string name="error_password_breached">This password appears in a known data breach — choose another</string>
+    <string name="error_session_replaced">Your session was opened on another device. Please sign in again.</string>
+    <string name="root_blocked_title">Device not secure</string>
+    <string name="root_blocked_body">This app can\'t run on a rooted or tampered device. To keep your data safe, please use a standard device.</string>
     <string name="pw_strength_label">Strength: %1$s</string>
     <string name="pw_strength_hint">Strength: %1$s — need at least Good to register</string>
     <string name="pw_too_weak">Too weak</string>
@@ -130,6 +134,7 @@
     <string name="quiz_correct">Correct! +%1$d XP</string>
     <string name="quiz_incorrect">Not quite</string>
     <string name="quiz_saved_offline">Saved offline — will sync when back online</string>
+    <string name="quiz_voided">Question voided — you left the app (anti-cheat)</string>
     <string name="report_title">Report this question</string>
     <string name="report_body">You can keep going — the report uploads in the background.</string>
     <string name="report_flag_wrong_key">Incorrect answer key</string>

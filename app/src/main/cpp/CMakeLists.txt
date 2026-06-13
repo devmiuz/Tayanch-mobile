@@ -13,3 +13,7 @@ target_link_libraries(tayanch_secrets ${log-lib})
 
 # Strip symbols in release so the exported JNI surface is minimal.
 target_compile_options(tayanch_secrets PRIVATE -fvisibility=hidden -O2)
+
+# 16 KB page-size support (required by Google Play for Android 15+). Align the
+# .so's LOAD segments to 16 KB so it loads on 4 KB *and* 16 KB page devices.
+target_link_options(tayanch_secrets PRIVATE "-Wl,-z,max-page-size=16384")

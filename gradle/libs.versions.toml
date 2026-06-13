@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "9.2.1"
 kotlin = "2.2.20"
 coreKtx = "1.17.0"
 lifecycle = "2.9.4"
@@ -11,9 +11,11 @@ serialization = "1.8.1"
 coroutines = "1.10.2"
 biometric = "1.1.0"
 koin = "4.2.1"
+rootbeer = "0.1.1"
 
 [libraries]
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+rootbeer = { group = "com.scottyab", name = "rootbeer-lib", version.ref = "rootbeer" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
@@ -45,6 +47,5 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

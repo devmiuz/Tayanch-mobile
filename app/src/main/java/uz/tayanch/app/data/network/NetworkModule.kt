@@ -1,27 +1,50 @@
 package uz.tayanch.app.data.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.CertificatePinner
+import okhttp3.OkHttpClient
+import uz.tayanch.app.BuildConfig
 import uz.tayanch.app.data.dto.AuthResponse
 import uz.tayanch.app.data.dto.OpponentDto
+import uz.tayanch.app.data.dto.PublicKeyResponse
 import uz.tayanch.app.data.dto.QuizGradeResponse
+import uz.tayanch.app.data.dto.RefreshRequest
 import uz.tayanch.app.data.dto.SimpleStatusResponse
 import uz.tayanch.app.data.mock.MockData
+import uz.tayanch.app.data.security.AppSignature
+import uz.tayanch.app.data.security.SecureSessionStore
+import uz.tayanch.app.data.security.SessionManager
 
 /**
- * The Ktor client, wired to a [MockEngine]. Every route the app calls is handled
- * here exactly as a real server would: the client code, DTOs, repository and
- * view-models are all production-shaped. Swapping `MockEngine` for `OkHttp` and
- * deleting the `engine { }` block is the only change needed to hit a real backend.
+ * Builds the Ktor [HttpClient]. Two engines, one config shape:
+ *
+ *  - [mockClient]  — MockEngine serving the bundled JSON. The default
+ *    (`USE_REAL_BACKEND=false`), so the app runs fully offline for a demo.
+ *  - [realClient]  — OkHttp against the FastAPI backend, wired with every
+ *    transport pillar: certificate pinning (18), the HMAC app-signature gate
+ *    (13, secret from the NDK), and bearer auth with refresh-token rotation
+ *    (16) that evicts the session on a single-session lock (15).
+ *
+ * [build] picks one based on BuildConfig. DTOs, repository and view-models are
+ * identical for both.
  */
 object NetworkModule {
 
@@ -36,20 +59,90 @@ object NetworkModule {
         headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
 
     /**
-     * Server-side state authority (Pillar 9): the running XP total lives on the
+     * Server-side state authority (Pillar 21): the running XP total lives on the
      * "server", not the client. The client only submits proof-of-work.
      */
     private var serverTotalXp = 1180
 
-    val client = HttpClient(MockEngine) {
+    fun build(store: SecureSessionStore, sessions: SessionManager): HttpClient =
+        if (BuildConfig.USE_REAL_BACKEND) realClient(store, sessions) else mockClient()
+
+    // --------------------------- real backend --------------------------------
+
+    private fun realClient(store: SecureSessionStore, sessions: SessionManager): HttpClient {
+        // Pillar 18 — certificate pinning (+ Pillar 13 app-signature) live on the
+        // OkHttp layer, where the request URL is fully resolved so the signed path
+        // matches the server's `request.url.path` exactly.
+        val pinner = CertificatePinner.Builder()
+            .add(BuildConfig.PIN_HOST, BuildConfig.CERT_PIN_PRIMARY, BuildConfig.CERT_PIN_BACKUP)
+            .build()
+        val ok = OkHttpClient.Builder()
+            .certificatePinner(pinner)
+            .addInterceptor { chain ->
+                val req = chain.request()
+                val sig = AppSignature.sign(req.method, req.url.encodedPath)
+                chain.proceed(
+                    req.newBuilder()
+                        .header(AppSignature.HEADER_TS, sig.timestamp)
+                        .header(AppSignature.HEADER_NONCE, sig.nonce)
+                        .header(AppSignature.HEADER_SIG, sig.signature)
+                        .build(),
+                )
+            }
+            .build()
+
+        return HttpClient(OkHttp) {
+            engine { preconfigured = ok }
+            install(ContentNegotiation) { json(json) }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val a = store.accessToken()
+                        val r = store.refreshToken()
+                        if (a != null && r != null) BearerTokens(a, r) else null
+                    }
+                    // Pillar 16 — on a 401, rotate via /auth/refresh. If the refresh
+                    // itself is rejected (the session was replaced — Pillar 15), wipe
+                    // the local session and signal the UI to bounce to the gateway.
+                    refreshTokens {
+                        val rt = store.refreshToken()
+                        if (rt == null) {
+                            sessions.invalidate(SessionManager.Reason.REFRESH_FAILED)
+                            return@refreshTokens null
+                        }
+                        val resp = client.post(ApiRoutes.refresh) {
+                            markAsRefreshTokenRequest()
+                            contentType(ContentType.Application.Json)
+                            setBody(RefreshRequest(rt))
+                        }
+                        if (resp.status.isSuccess()) {
+                            val body = resp.body<AuthResponse>()
+                            store.updateTokens(body.access_token, body.refresh_token)
+                            BearerTokens(body.access_token, body.refresh_token)
+                        } else {
+                            sessions.invalidate(SessionManager.Reason.SESSION_REPLACED)
+                            null
+                        }
+                    }
+                    sendWithoutRequest { true }
+                }
+            }
+            defaultRequest {
+                url(BuildConfig.API_BASE_URL)
+                contentType(ContentType.Application.Json)
+            }
+        }
+    }
+
+    // ------------------------------- mock ------------------------------------
+
+    fun mockClient(): HttpClient = HttpClient(MockEngine) {
         install(ContentNegotiation) {
             json(json)
         }
         defaultRequest {
             url(ApiRoutes.base)
             contentType(ContentType.Application.Json)
-            // A real build would add: Authorization, X-App-Signature (HMAC),
-            // and pin the server cert via the OkHttp engine.
         }
         engine {
             addHandler { request ->
@@ -58,6 +151,15 @@ object NetworkModule {
                 when {
                     path == ApiRoutes.login || path == ApiRoutes.register ->
                         respond(authJson(onboarded = path == ApiRoutes.login), HttpStatusCode.OK, jsonHeaders)
+
+                    // Pillar 7 — public key fetch (mock path uses plaintext, so this
+                    // is a clearly-labelled placeholder never used to seal).
+                    path == ApiRoutes.publicKey ->
+                        respond(publicKeyJson(), HttpStatusCode.OK, jsonHeaders)
+
+                    // Pillar 16 — refresh returns a fresh token pair on the same flow.
+                    path == ApiRoutes.refresh ->
+                        respond(authJson(onboarded = true), HttpStatusCode.OK, jsonHeaders)
 
                     path == ApiRoutes.onboarding ->
                         respond(statusJson("OK", "Profil saqlandi"), HttpStatusCode.OK, jsonHeaders)
@@ -139,6 +241,10 @@ object NetworkModule {
             session_id = "sess-${System.nanoTime()}",
             onboarded = onboarded,
         ),
+    )
+
+    private fun publicKeyJson(): String = json.encodeToString(
+        PublicKeyResponse(public_key = "MOCK-NO-RSA", key_id = "mock"),
     )
 
     private fun statusJson(status: String, message: String): String =

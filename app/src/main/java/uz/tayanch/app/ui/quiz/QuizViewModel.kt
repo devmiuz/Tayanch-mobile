@@ -21,7 +21,11 @@ import uz.tayanch.app.ui.components.UiState
 /** The per-question UI phase. */
 sealed interface QuizPhase {
     data object Answering : QuizPhase
-    data class Reviewing(val grade: QuizGradeResponse?, val savedOffline: Boolean) : QuizPhase
+    data class Reviewing(
+        val grade: QuizGradeResponse?,
+        val savedOffline: Boolean,
+        val voided: Boolean = false,
+    ) : QuizPhase
 }
 
 class QuizViewModel(
@@ -133,6 +137,17 @@ class QuizViewModel(
                 },
             )
             grading = false
+        }
+    }
+
+    /**
+     * Pillar 9 — lifecycle anti-cheat. Backgrounding the app or entering split-
+     * screen mid-question (to look up the answer) voids the current question: it
+     * moves straight to review with no grade and earns zero XP.
+     */
+    fun onBackgrounded() {
+        if (phase is QuizPhase.Answering && !grading) {
+            phase = QuizPhase.Reviewing(grade = null, savedOffline = false, voided = true)
         }
     }
 

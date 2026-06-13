@@ -47,6 +47,7 @@ class BattleViewModel(
 
     var lastMyCorrect by mutableStateOf<Boolean?>(null); private set
     var lastOppCorrect by mutableStateOf(false); private set
+    var roundVoided by mutableStateOf(false); private set
 
     var isComplete by mutableStateOf(false); private set
     var winner by mutableStateOf(""); private set
@@ -114,11 +115,29 @@ class BattleViewModel(
         }
     }
 
+    /**
+     * Pillar 9 — lifecycle anti-cheat. Backgrounding the app mid-round (to look up
+     * the answer with a helper) forfeits the round: it locks in as wrong with no
+     * score, exactly as the requirements demand for honest 1v1 battles.
+     */
+    fun onBackgrounded() {
+        if (loadState is UiState.Success && !inResult && !grading && !isComplete && current != null) {
+            grading = false
+            lastMyCorrect = false
+            roundVoided = true
+            val oppCorrect = Random.nextInt(100) < 62
+            if (oppCorrect) { oppScore++; oppCorrectTimeMs += Random.nextLong(2000, 8000) }
+            lastOppCorrect = oppCorrect
+            inResult = true
+        }
+    }
+
     fun next() {
         if (isLast) finish() else {
             index++
             selected = null
             inResult = false
+            roundVoided = false
             roundStartMs = SecureClock.nowMonotonic()
         }
     }
