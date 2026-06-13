@@ -1,0 +1,246 @@
+<resources>
+    <!-- Uzbek is the primary (default) language for the whole app. -->
+    <string name="app_name">Tayanch</string>
+
+    <!-- Common -->
+    <string name="retry">Qayta urinish</string>
+    <string name="ok">OK</string>
+    <string name="close">Yopish</string>
+    <string name="got_it">Tushunarli</string>
+
+    <!-- Auth -->
+    <string name="app_tagline">Karyera tayanchingiz</string>
+    <string name="tab_login">Kirish</string>
+    <string name="tab_register">Ro\'yxatdan o\'tish</string>
+    <string name="field_phone">Telefon raqami</string>
+    <string name="field_full_name">To\'liq ism</string>
+    <string name="field_age">Yosh</string>
+    <string name="field_password">Parol</string>
+    <string name="btn_create_account">Hisob yaratish</string>
+    <string name="btn_login">Kirish</string>
+    <string name="btn_biometric_unlock">Biometrika bilan kirish</string>
+    <string name="auth_security_note">Tokenlar apparat himoyali Keystore kaliti bilan saqlanadi · ekran tasviri bloklangan (FLAG_SECURE)</string>
+    <string name="error_auth_failed">Kirishda xatolik</string>
+    <string name="pw_strength_label">Mustahkamlik: %1$s</string>
+    <string name="pw_strength_hint">Mustahkamlik: %1$s — ro\'yxatdan o\'tish uchun kamida \"Yaxshi\" bo\'lsin</string>
+    <string name="pw_too_weak">Juda kuchsiz</string>
+    <string name="pw_weak">Kuchsiz</string>
+    <string name="pw_fair">O\'rtacha</string>
+    <string name="pw_good">Yaxshi</string>
+    <string name="pw_strong">Kuchli</string>
+
+    <!-- Onboarding -->
+    <string name="ob_title">Profilingizni sozlang</string>
+    <string name="ob_subtitle">Mutaxassisligingizni bozor talab qiladigan ko\'nikmalarga moslaymiz.</string>
+    <string name="ob_major">Universitet mutaxassisligi</string>
+    <string name="ob_major_search">Mutaxassisligingizni qidiring yoki yozing</string>
+    <string name="ob_add_major">\"%1$s\" ni qo\'shish</string>
+    <string name="ob_interests">Qiziqishlar / kasb sohalari</string>
+    <string name="ob_ai_generated">Ba\'zi takliflar mutaxassisligingiz uchun sun\'iy intellekt tomonidan yaratildi.</string>
+    <string name="ob_load_more">Yana qiziqishlarni yuklash</string>
+    <string name="ob_salary">Kutilayotgan maosh</string>
+    <string name="ob_salary_label">Oylik, USD da</string>
+    <string name="unit_usd">USD</string>
+    <string name="btn_complete_setup">Sozlashni yakunlash</string>
+    <string name="ob_security_note">Maxsus mutaxassisliklar mijozda tozalanadi va serverda dublikatlardan tekshiriladi</string>
+
+    <!-- Bottom navigation / tab titles -->
+    <string name="nav_home">Bosh sahifa</string>
+    <string name="nav_career">Karyera</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Home -->
+    <string name="home_roadmap_subtitle">Har bir mavzuni chapdan o\'ngga yakunlang. Istalgan vaqtda Umumiy test tugmasini bosing.</string>
+    <string name="home_security_note">O\'quv yo\'li XOR bilan yashirilgan endpointlar orqali olinadi (APK ichida ochiq URL yo\'q)</string>
+    <string name="fab_global_quiz">Umumiy test</string>
+    <string name="node_read">O\'qish</string>
+    <string name="node_web">Havola</string>
+    <string name="node_video">Video</string>
+    <string name="node_cards">Kartalar</string>
+    <string name="node_quiz">Test</string>
+    <string name="locked">Qulflangan</string>
+    <string name="level_assignment_boss">DARAJA TOPSHIRIG\'I (BOSS)</string>
+    <string name="level_unlock_xp">Bu topshiriqni ochish uchun %1$d XP to\'plang</string>
+    <string name="btn_get_task_pdf">Topshiriqni olish (PDF)</string>
+    <string name="dialog_next_steps_title">Keyingi qadamlar</string>
+    <string name="dialog_next_steps_body">Kodni kompyuteringizda yozing. Tayyor bo\'lgach, GitHub\'ga yuklang, so\'ng Karyera bo\'limi → Topshiriqlar\'da repo havolasini joylashtirib, tekshiruvga yuboring.</string>
+
+    <!-- Career -->
+    <string name="career_subtitle">Ko\'nikmalaringizni isbotlang: tengdoshlar bilan bellashing, sinov suhbati so\'rang, loyihalar topshiring.</string>
+    <string name="career_arena">1v1 Arena</string>
+    <string name="arena_qualified">Siz tayyorsiz. G\'alaba aniqlikka bog\'liq — durang tezlikda hal qilinadi.</string>
+    <string name="btn_find_battle">1v1 jang topish</string>
+    <string name="arena_reach_xp">Kirish uchun %1$d XP to\'plang (sizda %2$d bor).</string>
+    <string name="career_mock">Sinov suhbati</string>
+    <string name="mock_level_reached">Erishilgan daraja: %1$s · %2$d ta kutilayotgan so\'rov</string>
+    <string name="btn_request_mock">Sinov suhbati so\'rash</string>
+    <string name="career_assignments">Topshiriqlar</string>
+    <string name="field_github">GitHub repo havolasi</string>
+    <string name="btn_submit_assignment">Topshiriqni yuborish</string>
+    <string name="status_accepted">✅ Qabul qilindi</string>
+    <string name="status_pending">⏳ Kutilmoqda</string>
+    <string name="status_rejected">❌ Rad etildi</string>
+    <string name="status_available">Mavjud</string>
+    <string name="status_locked">🔒 Qulflangan</string>
+    <string name="career_security_note">Jang XP\'si serverda hisoblanadi · yuborilgan havolalar zararsizlantiriladi va avtomatik ochilmaydi (SSRF\'dan himoya)</string>
+    <string name="error_invalid_github">To\'g\'ri GitHub repo havolasini kiriting</string>
+
+    <!-- Profile -->
+    <string name="profile_identity">%1$s → %2$s · maqsad %3$d USD · reyting #%4$d</string>
+    <string name="profile_ai_coach">AI murabbiy</string>
+    <string name="profile_velocity">Karyera tezligi</string>
+    <string name="profile_pace">Sur\'at: %1$d XP/hafta · maqsad %2$d USD</string>
+    <string name="profile_avg_focus">O\'rtacha diqqat vaqti</string>
+    <string name="profile_distraction">Chalg\'ish darajasi</string>
+    <string name="profile_badges">Nishonlar</string>
+    <string name="profile_leaderboard">Reyting</string>
+    <string name="scope_major">Mutaxassisligim</string>
+    <string name="scope_global">Global</string>
+    <string name="profile_security_note">Profil /users/me orqali olinadi — shaxs JWT\'dan aniqlanadi, taxmin qilinadigan id orqali emas</string>
+    <string name="btn_logout">Chiqish</string>
+
+    <!-- Content (Read &amp; Watch / Focus Trainer) -->
+    <string name="content_presence_note">Diqqat nazorati: ilovadan chiqsangiz yoki harakat to\'xtasa, taymer to\'xtaydi</string>
+    <string name="btn_finish_earn_xp">Yakunlash va %1$d XP olish</string>
+    <string name="content_stay_focused">%1$d XP olish uchun diqqatni saqlang</string>
+    <string name="btn_leave_forfeit">Chiqish va XP\'dan voz kechish</string>
+    <string name="dialog_still_there_title">Hali shu yerdamisiz?</string>
+    <string name="dialog_still_there_body">Harakat bo\'lmagani uchun taymer to\'xtadi. XP to\'plashni davom ettirish uchun bosing.</string>
+    <string name="btn_im_here">Shu yerdaman</string>
+    <string name="dialog_forfeit_title">XP\'dan voz kechasizmi?</string>
+    <string name="dialog_forfeit_body">Siz hali o\'rtacha o\'qish vaqtiga yetmadingiz. Hozir chiqib, XP\'dan voz kechasizmi?</string>
+    <string name="btn_leave">Chiqish</string>
+    <string name="btn_keep_reading">O\'qishni davom ettirish</string>
+
+    <!-- Flashcards -->
+    <string name="flashcards_title">Kartalar</string>
+    <string name="cards_remaining">Qoldi: %1$d / %2$d</string>
+    <string name="flashcards_security_note">Kartani 0.8 soniyadan tez ko\'rib chiqish ball yig\'ish deb belgilanadi va to\'plamni qayta boshlaydi</string>
+    <string name="btn_review">← Takrorlash</string>
+    <string name="btn_know_it">Bilaman →</string>
+    <string name="dialog_slow_down_title">Sekinroq</string>
+    <string name="dialog_slow_down_body">Siz kartalarni o\'qiy olmaydigan darajada tez ko\'rib chiqyapsiz. To\'plam qayta boshlandi — bu urinish uchun XP yo\'q.</string>
+    <string name="btn_start_over">Qaytadan boshlash</string>
+    <string name="card_question">SAVOL</string>
+    <string name="card_answer">JAVOB</string>
+    <string name="card_tap_flip">Aylantirish uchun bosing</string>
+    <string name="deck_cleared">To\'plam yakunlandi!</string>
+    <string name="xp_plus">+%1$d XP</string>
+    <string name="btn_back_roadmap">O\'quv yo\'liga qaytish</string>
+
+    <!-- Quiz -->
+    <string name="quiz_security_note">Javoblar serverda baholanadi (ilova javob kalitini saqlamaydi) · skrinshotlar bloklangan</string>
+    <string name="btn_submit_answer">Javobni yuborish</string>
+    <string name="btn_report">Shikoyat</string>
+    <string name="btn_next">Keyingi</string>
+    <string name="btn_finish">Yakunlash</string>
+    <string name="quiz_select_all">Mos keladiganlarning barchasini tanlang</string>
+    <string name="quiz_input_label">Javobingizni yozing (inyeksiya sinov maydoni)</string>
+    <string name="quiz_injection_warning">Inyeksiya andozasi aniqlandi — server parametrlangan so\'rovlardan foydalanadi, shuning uchun bu oddiy matn sifatida qaraladi.</string>
+    <string name="quiz_correct">To\'g\'ri! +%1$d XP</string>
+    <string name="quiz_incorrect">Unchalik emas</string>
+    <string name="quiz_saved_offline">Oflayn saqlandi — internet qaytganda sinxronlanadi</string>
+    <string name="report_title">Bu savol haqida shikoyat</string>
+    <string name="report_body">Davom etishingiz mumkin — shikoyat fonda yuklanadi.</string>
+    <string name="report_flag_wrong_key">Noto\'g\'ri javob kaliti</string>
+    <string name="report_flag_poorly_worded">Yomon ifodalangan</string>
+    <string name="report_flag_typo">Imloviy xato</string>
+    <string name="report_uploading">Yuklanmoqda va tozalanmoqda…</string>
+    <string name="report_sent">Shikoyat yuborildi ✓ — skrinshot serverda qayta kodlanib, yashirin yuk olib tashlandi.</string>
+    <string name="quiz_complete">Test yakunlandi</string>
+    <string name="quiz_score">Natija: %1$d/%2$d</string>
+    <string name="quiz_pending_sync">%1$d ta javob sinxronlanishni kutmoqda</string>
+    <string name="btn_done">Tayyor</string>
+
+    <!-- Battle -->
+    <string name="battle_searching">Mutaxassisligingizdan raqib qidirilmoqda…</string>
+    <string name="battle_handshake_note">WSS orqali xavfsiz ulanish · soket ochilishidan oldin JWT tekshiriladi</string>
+    <string name="battle_security_note">Har bir bosqich serverda baholanadi; durang eng tez to\'g\'ri javoblar bo\'yicha hal qilinadi</string>
+    <string name="battle_round">%1$d-bosqich / %2$d</string>
+    <string name="btn_lock_answer">Javobni tasdiqlash</string>
+    <string name="btn_see_result">Natijani ko\'rish</string>
+    <string name="btn_next_round">Keyingi bosqich</string>
+    <string name="battle_you">Siz</string>
+    <string name="battle_vs">qarshi</string>
+    <string name="battle_correct">%1$s: ✓ to\'g\'ri</string>
+    <string name="battle_wrong">%1$s: ✗ noto\'g\'ri</string>
+    <string name="battle_victory">G\'alaba! 🏆</string>
+    <string name="battle_defeat">Mag\'lubiyat</string>
+    <string name="battle_draw">Durang</string>
+    <string name="battle_final_score">Yakuniy hisob %1$d–%2$d.</string>
+    <string name="battle_tie_speed">Hisob teng — tezlik hal qildi (%1$s s tezroq).</string>
+    <string name="btn_back_career">Karyeraga qaytish</string>
+
+    <!-- ViewModel fallback / status messages -->
+    <string name="error_load_roadmap">O\'quv yo\'lini yuklab bo\'lmadi</string>
+    <string name="error_load_career">Karyera bo\'limini yuklab bo\'lmadi</string>
+    <string name="error_load_profile">Profilni yuklab bo\'lmadi</string>
+    <string name="error_load_content">Kontentni yuklab bo\'lmadi</string>
+    <string name="error_load_quiz">Testni yuklab bo\'lmadi</string>
+    <string name="error_load_deck">To\'plamni yuklab bo\'lmadi</string>
+    <string name="error_matchmaking">Raqib topishda xatolik</string>
+    <string name="error_request_failed">So\'rov bajarilmadi</string>
+    <string name="error_submission_failed">Yuborishda xatolik</string>
+    <string name="quiz_no_questions">Bu testda hali savollar yo\'q</string>
+    <string name="error_generic">Noma\'lum xatolik</string>
+
+    <!-- Generated capstone PDF (shared to PC) -->
+    <string name="pdf_title">Tayanch — Bitiruv topshirig\'i</string>
+    <string name="pdf_body">Maqsad: ushbu daraja ko\'nikmalarini real loyihada qo\'llay olishingizni isbotlang.\n\nTopshiriladiganlar:\n  1. Quyidagi shartni amalga oshiruvchi GitHub repozitoriysi.\n  2. Dizayn va xavfsizlik tanlovlarini tushuntiruvchi qisqa README.\n\nShart:\n  Kichik login API\'ni quring va mustahkamlang. Argon2id parol xeshlash,\n  JWT access + aylanuvchi refresh tokenlar, auth yo\'llarida qat\'iy rate\n  limiting va parametrlangan so\'rovlarni qo\'llang. Har bir himoya qaysi\n  tahdidni kamaytirishini hujjatlang.\n\nTayyor bo\'lgach: Tayanch ilovasi -> Karyera -> Topshiriqlar bo\'limini\n  oching va GitHub repo havolasini tekshiruvga yuboring.</string>
+    <string name="pdf_chooser">Topshiriqni kompyuteringizga yuborish</string>
+
+    <!-- Jobs / vacancies -->
+    <string name="nav_jobs">Ishlar</string>
+    <string name="jobs_search">Vakansiya yoki kompaniya qidirish</string>
+    <string name="jobs_empty">Mos vakansiya topilmadi</string>
+    <string name="jobs_subtitle">Bozordagi ochiq vakansiyalar — qidiring va ariza topshiring.</string>
+    <string name="vacancy_apply">Ariza topshirish</string>
+    <string name="vacancy_applied">Ariza topshirildi ✓</string>
+    <string name="vacancy_description">Tavsif</string>
+    <string name="vacancy_requirements">Talablar</string>
+    <string name="error_load_jobs">Vakansiyalarni yuklab bo\'lmadi</string>
+    <string name="error_load_vacancy">Vakansiyani yuklab bo\'lmadi</string>
+
+    <!-- Resume / portfolio -->
+    <string name="resume_title">Rezyume va portfolio</string>
+    <string name="profile_edit_resume">Rezyumeni tahrirlash</string>
+    <string name="resume_full_name">To\'liq ism</string>
+    <string name="resume_headline">Kasbiy yo\'nalish (headline)</string>
+    <string name="resume_skills">Ko\'nikmalar</string>
+    <string name="resume_experience">Tajriba</string>
+    <string name="resume_education">Ta\'lim</string>
+    <string name="resume_links">Havolalar (GitHub, LinkedIn)</string>
+    <string name="resume_save">Saqlash</string>
+    <string name="resume_saved">Rezyume saqlandi ✓</string>
+
+    <!-- OTP / password reset -->
+    <string name="forgot_password">Parolni unutdingizmi?</string>
+    <string name="otp_title">Parolni tiklash</string>
+    <string name="otp_subtitle">Telefon raqamingizga tasdiqlash kodini yuboramiz.</string>
+    <string name="otp_send_code">Kod yuborish</string>
+    <string name="otp_code">Tasdiqlash kodi (OTP)</string>
+    <string name="otp_new_password">Yangi parol</string>
+    <string name="otp_reset">Parolni yangilash</string>
+    <string name="otp_sent">Kod %1$s raqamiga yuborildi</string>
+    <string name="otp_done">Parol yangilandi ✓</string>
+
+    <!-- Mock interview (Agora) -->
+    <string name="interview_title">Sinov suhbati</string>
+    <string name="interview_connecting">Ulanmoqda…</string>
+    <string name="interview_you">Siz</string>
+    <string name="interview_candidate">Nomzod</string>
+    <string name="interview_mute">Ovozsiz</string>
+    <string name="interview_camera">Kamera</string>
+    <string name="interview_end">Yakunlash</string>
+    <string name="interview_context">Nomzod: %1$s · %2$s · reyting #%3$d</string>
+
+    <!-- Offline / no network -->
+    <string name="offline_title">Internet ulanishi yo\'q</string>
+    <string name="offline_body">Tarmoqqa ulanishni tekshiring va qayta urinib ko\'ring.</string>
+
+    <!-- Misc -->
+    <string name="biometric_title">Tayanch\'ni ochish</string>
+    <string name="biometric_subtitle">Davom etish uchun o\'zingizni tasdiqlang</string>
+    <string name="biometric_negative">Parol bilan kirish</string>
+    <string name="cd_copy">Nusxalash</string>
+</resources>

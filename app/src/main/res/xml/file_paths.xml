@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- The assignment PDF is written here before ACTION_SEND hands it to a PC. -->
+    <cache-path name="assignments" path="assignments/" />
+</paths>

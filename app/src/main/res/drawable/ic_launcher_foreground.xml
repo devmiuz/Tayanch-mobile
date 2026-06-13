@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- A stylized pillar / "T" — "Tayanch" means a support/pillar. -->
+    <group android:scaleX="1.0" android:scaleY="1.0" android:pivotX="54" android:pivotY="54">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M34,38 h40 v9 h-15.5 v33 h-9 v-33 h-15.5 z" />
+        <path
+            android:fillColor="#9AE6B4"
+            android:pathData="M44,64 h20 v6 h-20 z" />
+    </group>
+</vector>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A Material3 base theme. The actual colors are driven by Compose
+         (TayanchTheme); this only needs to be a valid Material3 parent so the
+         splash window and system bars look right before Compose takes over. -->
+    <style name="Theme.Tayanch" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/tayanch_primary</item>
+        <item name="android:windowBackground">@color/tayanch_background</item>
+    </style>
+</resources>

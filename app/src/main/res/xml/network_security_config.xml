@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pillar 11 (Transport Security): cleartext HTTP is forbidden app-wide, so the
+  client refuses to talk to anything that is not HTTPS/WSS. The localhost entry
+  exists only so a developer can point the Ktor client at a local backend during
+  testing without weakening production transport rules.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
