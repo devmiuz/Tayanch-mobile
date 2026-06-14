@@ -84,6 +84,21 @@ private fun youtubeIframeApiHtml(id: String): String = """
     </script></body></html>
 """.trimIndent()
 
+/**
+ * Un-collapses full-height flex/`100vh` app shells (Writerside, kotlinlang.org)
+ * whose <main> resolves to height:0 in a WebView and clips the article. Forces the
+ * outer containers into normal document flow; harmless on pages that already flow.
+ */
+private const val FLOW_FIX_JS = """
+(function(){try{
+  var id='__tayanch_flow_fix__'; if(document.getElementById(id))return;
+  var s=document.createElement('style'); s.id=id;
+  s.textContent='html,body{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}'
+    +'main,[role=main]{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;display:block!important}';
+  (document.head||document.documentElement).appendChild(s);
+}catch(e){}})();
+"""
+
 /** Player state pushed from the WebView (duration & position in seconds). */
 data class VideoProgress(val durationSec: Int, val positionSec: Int, val ended: Boolean)
 
@@ -113,13 +128,28 @@ fun HardenedWebView(
                     settings.safeBrowsingEnabled = true
                     settings.domStorageEnabled = true
                     settings.mediaPlaybackRequiresUserGesture = false
+                    // Honor the page's <meta viewport> so responsive doc sites
+                    // (e.g. kotlinlang.org / developer.android.com) lay out their
+                    // content column correctly instead of collapsing it to ~0 width.
+                    settings.useWideViewPort = true
+                    settings.loadWithOverviewMode = true
+                    settings.builtInZoomControls = true
+                    settings.displayZoomControls = false
 
                     webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
                             !isAllowed(request?.url?.toString())
 
                         override fun onPageStarted(view: WebView?, u: String?, favicon: android.graphics.Bitmap?) { loading = true }
-                        override fun onPageFinished(view: WebView?, u: String?) { loading = false }
+                        override fun onPageFinished(view: WebView?, u: String?) {
+                            loading = false
+                            // Some doc sites (e.g. kotlinlang.org / Writerside) build a
+                            // full-height flex/`100vh` app shell whose <main> resolves to
+                            // height:0 inside a WebView, clipping the article to nothing.
+                            // Force the content containers into normal document flow so the
+                            // article's intrinsic height is honored and the page scrolls.
+                            if (youtubeId(url) == null) view?.evaluateJavascript(FLOW_FIX_JS, null)
+                        }
                         override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: android.webkit.WebResourceError?) {
                             if (request?.isForMainFrame == true) loading = false
                         }
