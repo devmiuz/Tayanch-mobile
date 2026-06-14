@@ -5,6 +5,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import uz.tayanch.app.core.ResourceProvider
+import uz.tayanch.app.data.CompletionStore
 import uz.tayanch.app.data.network.NetworkModule
 import uz.tayanch.app.data.repository.TayanchRepository
 import uz.tayanch.app.data.security.SecureSessionStore
@@ -25,8 +26,9 @@ val appModule = module {
     single { SecureSessionStore(androidContext()) }
     single { SessionManager(get()) }
     single<HttpClient> { NetworkModule.build(get(), get()) }
-    single { TayanchRepository(get()) }
+    single { TayanchRepository(get(), get()) }
     single { ResourceProvider(androidContext()) }
+    single { CompletionStore() }
 
     viewModelOf(::AuthViewModel)
     viewModelOf(::OnboardingViewModel)

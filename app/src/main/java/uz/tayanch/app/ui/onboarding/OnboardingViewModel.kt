@@ -132,6 +132,11 @@ class OnboardingViewModel(
                 )
             }.fold(
                 onSuccess = {
+                    // Persist the chosen interests — they drive the Home roadmap,
+                    // the global quiz and the Arena deck.
+                    store.saveInterests(state.selectedInterestIds.toList())
+                    // Persist the expected salary (encrypted) for the Profile screen.
+                    store.saveExpectedSalary(state.salary.toIntOrNull() ?: 0)
                     store.isOnboarded = true
                     state = state.copy(submitting = false)
                     onDone()

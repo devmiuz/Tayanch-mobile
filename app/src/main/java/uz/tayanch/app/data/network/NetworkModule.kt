@@ -167,11 +167,8 @@ object NetworkModule {
                     path == ApiRoutes.majors ->
                         respond(MockData.majorsJson, HttpStatusCode.OK, jsonHeaders)
 
-                    path == ApiRoutes.interests -> {
-                        val page = params["page"]?.toIntOrNull() ?: 1
-                        val body = if (page <= 1) MockData.interestsPage1Json else MockData.interestsPage2Json
-                        respond(body, HttpStatusCode.OK, jsonHeaders)
-                    }
+                    path == ApiRoutes.interests ->
+                        respond(MockData.interestsCatalogJson, HttpStatusCode.OK, jsonHeaders)
 
                     path == ApiRoutes.profile ->
                         respond(MockData.userProfileJson, HttpStatusCode.OK, jsonHeaders)
@@ -185,13 +182,13 @@ object NetworkModule {
                     }
 
                     path == ApiRoutes.roadmap ->
-                        respond(MockData.roadmapJson, HttpStatusCode.OK, jsonHeaders)
+                        respond(MockData.roadmapJson(params["interest"].orEmpty()), HttpStatusCode.OK, jsonHeaders)
 
                     path == ApiRoutes.careerHub ->
                         respond(MockData.careerHubJson, HttpStatusCode.OK, jsonHeaders)
 
                     path == ApiRoutes.arenaDeck ->
-                        respond(MockData.battleDeckJson, HttpStatusCode.OK, jsonHeaders)
+                        respond(MockData.arenaDeckJson(interestList(params["interests"])), HttpStatusCode.OK, jsonHeaders)
 
                     path == ApiRoutes.arenaFind ->
                         respond(opponentJson(), HttpStatusCode.OK, jsonHeaders)
@@ -220,9 +217,14 @@ object NetworkModule {
 
                     path.startsWith(ApiRoutes.content) -> {
                         val id = path.removePrefix(ApiRoutes.content)
-                        val body = MockData.contentDetails[id]
-                        if (body != null) respond(body, HttpStatusCode.OK, jsonHeaders)
-                        else respond(statusJson("NOT_FOUND", "No content for $id"), HttpStatusCode.NotFound, jsonHeaders)
+                        // The global quiz is assembled from the selected interests.
+                        if (id == "quiz-global") {
+                            respond(MockData.globalQuizJson(interestList(params["interests"])), HttpStatusCode.OK, jsonHeaders)
+                        } else {
+                            val body = MockData.contentDetails[id]
+                            if (body != null) respond(body, HttpStatusCode.OK, jsonHeaders)
+                            else respond(statusJson("NOT_FOUND", "No content for $id"), HttpStatusCode.NotFound, jsonHeaders)
+                        }
                     }
 
                     else -> respond(
@@ -233,6 +235,10 @@ object NetworkModule {
             }
         }
     }
+
+    /** Parse the `?interests=a,b` query param into a clean id list. */
+    private fun interestList(csv: String?): List<String> =
+        csv.orEmpty().split(",").map { it.trim() }.filter { it.isNotEmpty() }
 
     private fun authJson(onboarded: Boolean): String = json.encodeToString(
         AuthResponse(

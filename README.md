@@ -67,12 +67,34 @@ Main Hub (bottom bar): Home · Career · Profile        + Global-Quiz FAB
 - **Profile** – AI motivation, career-velocity projection, focus stats, badges, and a
   filterable leaderboard.
 
+## Learning content — interests
+
+At onboarding the candidate multi-selects from **four learning interests**, each with its
+own 2-level roadmap and fully-authored Level-1 content (article + weblink + video +
+flashcards + quiz, in Uzbek):
+
+| Interest | Level-1 topics |
+|----------|----------------|
+| 🛡️ Kiberxavfsizlik | Authentication · Injection (SQLi/XSS) · Access control & IDOR |
+| 🐍 Python dasturlash | Syntax & types · Control flow & functions · Data structures |
+| 🎨 Grafik dizayn | Composition & hierarchy · Color theory · Typography |
+| 🤖 Android dasturlash | Kotlin basics · App components · Compose & state |
+
+The selected interest ids are stored ([SecureSessionStore]) and **drive the shared
+screens**: Home shows one roadmap at a time (switcher chips when several are picked), and
+the global quiz + Arena deck are assembled from the chosen interests' question pools.
+Content lives per interest in `data/mock/{Cyber,Python,Design,Android}Content.kt`; paths
+follow [roadmap.sh/android](https://roadmap.sh/android), the
+[Scaler Python roadmap](https://www.scaler.com/blog/python-developer-roadmap-2026-6-month-step-by-step-guide/),
+and the [Coursera graphic-design roadmap](https://www.coursera.org/resources/graphic-design-learning-roadmap).
+
 ## Project structure
 
 ```
 data/
+  Interests.kt single source of the 4 learning interests (id · name · emoji)
   dto/         kotlinx.serialization DTOs (the API contract)
-  mock/        MockData — every JSON response + the server-side answer key
+  mock/        MockData (aggregator) · {Cyber,Python,Design,Android}Content · AnswerSpec
   network/     ApiRoutes (XOR-obfuscated) · NetworkModule (Ktor + MockEngine + grader)
   repository/  TayanchRepository — the one gateway to the network
   security/    KeystoreCrypto(+StrongBox) · BiometricKey · SecureSessionStore · SecureClock

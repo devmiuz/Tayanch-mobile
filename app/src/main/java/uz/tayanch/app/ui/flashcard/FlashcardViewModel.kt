@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import uz.tayanch.app.R
 import uz.tayanch.app.core.ResourceProvider
+import uz.tayanch.app.data.CompletionStore
 import uz.tayanch.app.data.dto.FlashcardDto
 import uz.tayanch.app.data.repository.TayanchRepository
 import uz.tayanch.app.data.security.SecureClock
@@ -17,7 +18,10 @@ import uz.tayanch.app.ui.components.UiState
 class FlashcardViewModel(
     private val repo: TayanchRepository,
     private val res: ResourceProvider,
+    private val completion: CompletionStore,
 ) : ViewModel() {
+
+    private var contentId: String? = null
 
     var loadState by mutableStateOf<UiState<Unit>>(UiState.Loading)
         private set
@@ -40,6 +44,7 @@ class FlashcardViewModel(
 
     fun load(contentId: String) {
         if (deck.isNotEmpty()) return
+        this.contentId = contentId
         loadState = UiState.Loading
         viewModelScope.launch {
             runCatching { repo.getContent(contentId) }.fold(
@@ -71,6 +76,8 @@ class FlashcardViewModel(
         }
         queue = if (known) queue.drop(1) else queue.drop(1) + queue.first()
         resetShownClock()
+        // Deck cleared → mark the flashcard node completed (green check on Home).
+        if (queue.isEmpty()) contentId?.let(completion::markCompleted)
     }
 
     fun acknowledgeFreezeAndReset() {

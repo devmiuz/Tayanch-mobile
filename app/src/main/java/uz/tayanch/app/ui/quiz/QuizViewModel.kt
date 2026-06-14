@@ -13,6 +13,7 @@ import uz.tayanch.app.data.dto.QuestionType
 import uz.tayanch.app.data.dto.QuizGradeResponse
 import uz.tayanch.app.data.dto.QuizQuestionDto
 import uz.tayanch.app.data.dto.QuizSubmitRequest
+import uz.tayanch.app.data.CompletionStore
 import uz.tayanch.app.data.repository.TayanchRepository
 import uz.tayanch.app.data.security.InputSanitizer
 import uz.tayanch.app.data.security.SecureClock
@@ -31,11 +32,13 @@ sealed interface QuizPhase {
 class QuizViewModel(
     private val repo: TayanchRepository,
     private val res: ResourceProvider,
+    private val completion: CompletionStore,
 ) : ViewModel() {
 
     var loadState by mutableStateOf<UiState<Unit>>(UiState.Loading)
         private set
 
+    private var contentId: String? = null
     private var questions: List<QuizQuestionDto> = emptyList()
 
     var quizTitle by mutableStateOf(""); private set
@@ -58,9 +61,14 @@ class QuizViewModel(
 
     fun load(contentId: String) {
         if (questions.isNotEmpty()) return
+        this.contentId = contentId
         loadState = UiState.Loading
         viewModelScope.launch {
-            runCatching { repo.getContent(contentId) }.fold(
+            // The global quiz is assembled from the user's interests (Pillar:
+            // interest-driven content); topic quizzes load by their content id.
+            runCatching {
+                if (contentId == "quiz-global") repo.getGlobalQuiz() else repo.getContent(contentId)
+            }.fold(
                 onSuccess = { detail ->
                     questions = detail.questions
                     quizTitle = detail.title
@@ -154,6 +162,9 @@ class QuizViewModel(
     fun next() {
         if (isLast) {
             isComplete = true
+            // Mark the quiz node completed (green check on Home); the global quiz
+            // id ("quiz-global") matches no roadmap node, so that's a harmless no-op.
+            contentId?.let(completion::markCompleted)
         } else {
             index++
             startQuestion()

@@ -102,11 +102,15 @@
     <string name="scope_global">Global</string>
     <string name="profile_security_note">Profil /users/me orqali olinadi — shaxs JWT\'dan aniqlanadi, taxmin qilinadigan id orqali emas</string>
     <string name="btn_logout">Chiqish</string>
+    <string name="btn_cancel">Bekor qilish</string>
+    <string name="logout_confirm_title">Hisobdan chiqasizmi?</string>
+    <string name="logout_confirm_body">Chiqsangiz, ushbu qurilmada saqlangan barcha ma\'lumotlaringiz (sessiya, profil, qiziqishlar) o\'chiriladi.</string>
 
     <!-- Content (Read &amp; Watch / Focus Trainer) -->
     <string name="content_presence_note">Diqqat nazorati: ilovadan chiqsangiz yoki harakat to\'xtasa, taymer to\'xtaydi</string>
     <string name="btn_finish_earn_xp">Yakunlash va %1$d XP olish</string>
     <string name="content_stay_focused">%1$d XP olish uchun diqqatni saqlang</string>
+    <string name="content_watch_to_end">Videoni oxirigacha tomosha qilib XP oling</string>
     <string name="btn_leave_forfeit">Chiqish va XP\'dan voz kechish</string>
     <string name="dialog_still_there_title">Hali shu yerdamisiz?</string>
     <string name="dialog_still_there_body">Harakat bo\'lmagani uchun taymer to\'xtadi. XP to\'plashni davom ettirish uchun bosing.</string>

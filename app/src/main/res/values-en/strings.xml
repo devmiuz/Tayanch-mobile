@@ -95,10 +95,14 @@
     <string name="scope_global">Global</string>
     <string name="profile_security_note">Profile loaded from /users/me — identity comes from the JWT, not a guessable id</string>
     <string name="btn_logout">Log out</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="logout_confirm_title">Log out?</string>
+    <string name="logout_confirm_body">Logging out wipes all your saved data on this device (session, profile, interests).</string>
 
     <string name="content_presence_note">Proof-of-Presence: timer pauses when you leave the app or stop interacting</string>
     <string name="btn_finish_earn_xp">Finish &amp; earn %1$d XP</string>
     <string name="content_stay_focused">Stay focused to earn %1$d XP</string>
+    <string name="content_watch_to_end">Watch the video to the end to earn XP</string>
     <string name="btn_leave_forfeit">Leave &amp; forfeit XP</string>
     <string name="dialog_still_there_title">Are you still there?</string>
     <string name="dialog_still_there_body">The focus timer paused because there was no interaction. Tap to resume earning XP.</string>

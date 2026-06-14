@@ -28,6 +28,7 @@ import uz.tayanch.app.data.dto.VacancyDto
 import uz.tayanch.app.data.dto.VacancyListResponse
 import uz.tayanch.app.data.network.ApiRoutes
 import uz.tayanch.app.data.network.NetworkModule
+import uz.tayanch.app.data.security.SecureSessionStore
 
 /**
  * The single gateway between UI/view-models and the network. Every call is a
@@ -36,8 +37,11 @@ import uz.tayanch.app.data.network.NetworkModule
  * server.
  */
 class TayanchRepository(
+    private val store: SecureSessionStore,
     private val client: HttpClient = NetworkModule.mockClient(),
 ) {
+
+    private fun interestCsv(): String = store.interestIds().joinToString(",")
 
     /** Pillar 7 — fetch the RSA public key used to seal the password field. */
     suspend fun getPublicKey(): PublicKeyResponse =
@@ -68,8 +72,9 @@ class TayanchRepository(
     suspend fun getLeaderboard(scope: String): LeaderboardResponse =
         client.get(ApiRoutes.leaderboard) { parameter("scope", scope) }.body()
 
-    suspend fun getRoadmap(): RoadmapResponse =
-        client.get(ApiRoutes.roadmap).body()
+    /** Roadmap for a single chosen interest (Home switches between selected ones). */
+    suspend fun getRoadmap(interestId: String): RoadmapResponse =
+        client.get(ApiRoutes.roadmap) { parameter("interest", interestId) }.body()
 
     suspend fun getCareerHub(): CareerHubDto =
         client.get(ApiRoutes.careerHub).body()
@@ -77,8 +82,13 @@ class TayanchRepository(
     suspend fun getContent(contentId: String): ContentDetailDto =
         client.get(ApiRoutes.content + contentId).body()
 
+    /** Global quiz assembled from the user's selected interests. */
+    suspend fun getGlobalQuiz(): ContentDetailDto =
+        client.get(ApiRoutes.content + "quiz-global") { parameter("interests", interestCsv()) }.body()
+
+    /** Arena deck assembled from the user's selected interests. */
     suspend fun getBattleDeck(): ContentDetailDto =
-        client.get(ApiRoutes.arenaDeck).body()
+        client.get(ApiRoutes.arenaDeck) { parameter("interests", interestCsv()) }.body()
 
     suspend fun findOpponent(): OpponentDto =
         client.post(ApiRoutes.arenaFind).body()

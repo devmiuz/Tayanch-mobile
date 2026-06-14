@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,6 +36,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -63,6 +66,7 @@ import kotlinx.coroutines.withContext
 import uz.tayanch.app.ui.theme.SuccessGreen
 import uz.tayanch.app.ui.theme.TayanchTheme
 import uz.tayanch.app.R
+import uz.tayanch.app.data.Interests
 import uz.tayanch.app.data.dto.ContentNodeDto
 import uz.tayanch.app.data.dto.ContentType
 import uz.tayanch.app.data.dto.LevelDto
@@ -81,7 +85,12 @@ fun HomeScreen(
     vm: HomeViewModel = koinViewModel(),
 ) {
     StateContent(vm.state, Modifier.padding(contentPadding).fillMaxSize(), onRetry = vm::load) { roadmap ->
-        HomeContent(roadmap, contentPadding, onOpenContent, onOpenFlashcard, onOpenQuiz)
+        HomeContent(
+            roadmap, contentPadding, onOpenContent, onOpenFlashcard, onOpenQuiz,
+            interests = vm.interests,
+            activeInterestId = vm.activeInterestId,
+            onSelectInterest = vm::selectInterest,
+        )
     }
 }
 
@@ -92,6 +101,9 @@ private fun HomeContent(
     onOpenContent: (String) -> Unit,
     onOpenFlashcard: (String) -> Unit,
     onOpenQuiz: (String) -> Unit,
+    interests: List<Interests.Interest> = emptyList(),
+    activeInterestId: String = "",
+    onSelectInterest: (String) -> Unit = {},
 ) {
     val openNode: (ContentNodeDto) -> Unit = { node ->
         if (!node.is_locked) {
@@ -108,6 +120,25 @@ private fun HomeContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        // Interest switcher — only when the user picked more than one (each shows
+        // its own roadmap). Pillar: shared screens follow the selected interests.
+        if (interests.size > 1) {
+            item {
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    interests.forEach { interest ->
+                        FilterChip(
+                            selected = interest.id == activeInterestId,
+                            onClick = { onSelectInterest(interest.id) },
+                            label = { Text("${interest.emoji} ${interest.name}") },
+                        )
+                    }
+                }
+            }
+        }
+
         item {
             Column {
                 Text(

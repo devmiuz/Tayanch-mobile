@@ -40,7 +40,16 @@ class ProfileViewModel(
                 // /users/me — identity comes from the JWT, never a URL id (Pillar 10, IDOR).
                 val profile = repo.getProfile()
                 val board = repo.getLeaderboard(scope)
-                ProfileData(profile, board)
+                // Overlay the real values the user entered at sign-up (encrypted prefs)
+                // onto the server profile, so the screen shows THEM, not demo data.
+                val name = store.fullName()
+                val salary = store.expectedSalary()
+                val merged = profile.copy(
+                    full_name = name ?: profile.full_name,
+                    expected_salary = salary ?: profile.expected_salary,
+                    velocity = if (salary != null) profile.velocity.copy(target_salary = salary) else profile.velocity,
+                )
+                ProfileData(merged, board)
             }.fold(
                 onSuccess = { state = UiState.Success(it) },
                 onFailure = { state = UiState.Error(it.message ?: res.string(R.string.error_load_profile)) },
