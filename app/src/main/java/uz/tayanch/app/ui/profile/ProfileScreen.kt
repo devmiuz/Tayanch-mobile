@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.profile
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -108,11 +110,11 @@ private fun ProfileContent(
 
         SecurityNote(stringResource(R.string.profile_security_note))
 
-        Button(onClick = onOpenResume, modifier = Modifier.fillMaxWidth()) {
+        Button(shape = TayanchControl.Shape, onClick = onOpenResume, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
             Text("  " + stringResource(R.string.profile_edit_resume))
         }
-        OutlinedButton(onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(shape = TayanchControl.Shape, onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
             Text("  " + stringResource(R.string.btn_logout))
         }

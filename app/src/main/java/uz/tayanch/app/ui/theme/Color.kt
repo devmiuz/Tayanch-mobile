@@ -12,3 +12,6 @@ val TayanchSurfaceDark = Color(0xFF11150F)
 
 /** Semantic "success / correct" green — used for correct answers, badges, etc. */
 val SuccessGreen = Color(0xFF2F855A)
+
+/** Semantic "warning" amber — a yellowish caution tone, not an alarming red/error. */
+val WarningAccent = Color(0xFFF59E0B)

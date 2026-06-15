@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.onboarding
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -173,7 +175,7 @@ private fun OnboardingContent(
         }
 
         Spacer(Modifier.height(24.dp))
-        Button(
+        Button(shape = TayanchControl.Shape, 
             onClick = onSubmit,
             enabled = canSubmit && !state.submitting,
             modifier = Modifier.fillMaxWidth().height(50.dp),

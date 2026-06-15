@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.battle
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -187,12 +189,12 @@ private fun BattleRound(
         Surface(shadowElevation = 8.dp) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
                 if (!inResult) {
-                    Button(onClick = onSubmit, enabled = selected != null && !grading, modifier = Modifier.fillMaxWidth()) {
+                    Button(shape = TayanchControl.Shape, onClick = onSubmit, enabled = selected != null && !grading, modifier = Modifier.fillMaxWidth()) {
                         if (grading) CircularProgressIndicator(Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
                         else Text(stringResource(R.string.btn_lock_answer))
                     }
                 } else {
-                    Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) {
+                    Button(shape = TayanchControl.Shape, onClick = onNext, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(if (isLast) R.string.btn_see_result else R.string.btn_next_round))
                     }
                 }
@@ -256,7 +258,7 @@ private fun BattleResult(vm: BattleViewModel, onFinish: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         Text(vm.resultDetail, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(24.dp))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_back_career)) }
+        Button(shape = TayanchControl.Shape, onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_back_career)) }
     }
 }
 

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import org.koin.androidx.compose.koinViewModel
 import uz.tayanch.app.ui.theme.SuccessGreen
+import uz.tayanch.app.ui.theme.TayanchControl
 import uz.tayanch.app.ui.theme.TayanchTheme
 import uz.tayanch.app.R
 import uz.tayanch.app.ui.components.SecurityNote
@@ -148,6 +149,7 @@ private fun AuthContent(
             onValueChange = onPhone,
             label = { Text(stringResource(R.string.field_phone)) },
             singleLine = true,
+            shape = TayanchControl.Shape,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
         )
@@ -159,6 +161,7 @@ private fun AuthContent(
                 onValueChange = onName,
                 label = { Text(stringResource(R.string.field_full_name)) },
                 singleLine = true,
+                shape = TayanchControl.Shape,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(12.dp))
@@ -167,6 +170,7 @@ private fun AuthContent(
                 onValueChange = onAge,
                 label = { Text(stringResource(R.string.field_age)) },
                 singleLine = true,
+                shape = TayanchControl.Shape,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -178,6 +182,7 @@ private fun AuthContent(
             onValueChange = onPassword,
             label = { Text(stringResource(R.string.field_password)) },
             singleLine = true,
+            shape = TayanchControl.Shape,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
@@ -200,9 +205,10 @@ private fun AuthContent(
         Button(
             onClick = onSubmit,
             enabled = canSubmit && !state.loading,
+            shape = TayanchControl.Shape,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(TayanchControl.Height),
         ) {
             if (state.loading) {
                 CircularProgressIndicator(
@@ -220,7 +226,13 @@ private fun AuthContent(
 
         if (showBiometric) {
             Spacer(Modifier.height(12.dp))
-            OutlinedButton(onClick = onBiometric, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = onBiometric,
+                shape = TayanchControl.Shape,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(TayanchControl.Height),
+            ) {
                 Icon(Icons.Filled.Fingerprint, contentDescription = null)
                 Text("  " + stringResource(R.string.btn_biometric_unlock))
             }

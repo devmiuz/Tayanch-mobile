@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.components
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +43,7 @@ fun ErrorBox(message: String, modifier: Modifier = Modifier, onRetry: (() -> Uni
                 textAlign = TextAlign.Center,
             )
             if (onRetry != null) {
-                Button(onClick = onRetry, modifier = Modifier.padding(top = 12.dp)) { Text(stringResource(R.string.retry)) }
+                Button(shape = TayanchControl.Shape, onClick = onRetry, modifier = Modifier.padding(top = 12.dp)) { Text(stringResource(R.string.retry)) }
             }
         }
     }
@@ -72,7 +74,7 @@ fun <T> StateContent(
 fun SecurityNote(text: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
         shape = RoundedCornerShape(8.dp),
     ) {
         Row(
@@ -83,13 +85,13 @@ fun SecurityNote(text: String, modifier: Modifier = Modifier) {
             Icon(
                 Icons.Filled.Shield,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp),
             )
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

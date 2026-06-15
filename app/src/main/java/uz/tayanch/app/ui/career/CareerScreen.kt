@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.career
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -121,7 +123,7 @@ private fun ArenaCard(arena: ArenaStatusDto, onOpenBattle: () -> Unit) {
             if (arena.unlocked) {
                 Text(stringResource(R.string.arena_qualified), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(10.dp))
-                Button(onClick = onOpenBattle, modifier = Modifier.fillMaxWidth()) {
+                Button(shape = TayanchControl.Shape, onClick = onOpenBattle, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.btn_find_battle))
                 }
             } else {
@@ -132,7 +134,7 @@ private fun ArenaCard(arena: ArenaStatusDto, onOpenBattle: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(10.dp))
-                Button(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
+                Button(shape = TayanchControl.Shape, onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                     Text("  " + stringResource(R.string.locked))
                 }
@@ -157,7 +159,7 @@ private fun MockInterviewCard(status: MockInterviewStatusDto, busy: Boolean, onR
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(10.dp))
-            Button(onClick = onRequest, enabled = status.available && !busy, modifier = Modifier.fillMaxWidth()) {
+            Button(shape = TayanchControl.Shape, onClick = onRequest, enabled = status.available && !busy, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.btn_request_mock))
             }
         }
@@ -198,7 +200,7 @@ private fun AssignmentsCard(
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Spacer(Modifier.height(6.dp))
-                        OutlinedButton(
+                        OutlinedButton(shape = TayanchControl.Shape, 
                             onClick = { onSubmit(a.level_id, value) },
                             enabled = value.isNotBlank() && !busy,
                             modifier = Modifier.fillMaxWidth(),

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -84,10 +85,15 @@ fun MainScaffold(
         },
         floatingActionButton = {
             if (selected == HubTab.HOME.ordinal) {
+                // Secondary action: the global quiz is a review utility, so it
+                // sits in a neutral surface (green content only) and yields the
+                // visual spotlight to the learning content nodes.
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.fab_global_quiz)) },
                     icon = { Icon(Icons.Filled.Quiz, contentDescription = null) },
                     onClick = { onOpenQuiz("quiz-global") },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary,
                 )
             }
         },

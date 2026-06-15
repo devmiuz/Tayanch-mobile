@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.quiz
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -212,7 +214,7 @@ private fun QuizQuestionContent(
         Surface(shadowElevation = 8.dp) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(16.dp)) {
                 if (reviewing == null) {
-                    Button(
+                    Button(shape = TayanchControl.Shape, 
                         onClick = onSubmit,
                         enabled = canSubmit && !grading,
                         modifier = Modifier.fillMaxWidth(),
@@ -226,7 +228,7 @@ private fun QuizQuestionContent(
                             Icon(Icons.Filled.Flag, contentDescription = null, modifier = Modifier.size(18.dp))
                             Text(" " + stringResource(R.string.btn_report))
                         }
-                        Button(onClick = onNext, modifier = Modifier.weight(1f)) {
+                        Button(shape = TayanchControl.Shape, onClick = onNext, modifier = Modifier.weight(1f)) {
                             Text(stringResource(if (isLast) R.string.btn_finish else R.string.btn_next))
                         }
                     }
@@ -358,7 +360,7 @@ private fun ReportSheet(onClose: () -> Unit) {
             status != null -> Text(status!!, color = SuccessGreen)
         }
         Spacer(Modifier.height(16.dp))
-        Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.close)) }
+        Button(shape = TayanchControl.Shape, onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.close)) }
         Spacer(Modifier.height(8.dp))
     }
 }
@@ -381,7 +383,7 @@ private fun QuizComplete(vm: QuizViewModel, onFinish: () -> Unit) {
             Text(stringResource(R.string.quiz_pending_sync, vm.pendingSyncCount), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
         }
         Spacer(Modifier.height(24.dp))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_done)) }
+        Button(shape = TayanchControl.Shape, onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_done)) }
     }
 }
 

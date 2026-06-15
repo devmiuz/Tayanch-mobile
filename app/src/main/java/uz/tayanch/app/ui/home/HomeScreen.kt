@@ -32,13 +32,14 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,6 +65,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uz.tayanch.app.ui.theme.SuccessGreen
+import uz.tayanch.app.ui.theme.TayanchControl
 import uz.tayanch.app.ui.theme.TayanchTheme
 import uz.tayanch.app.R
 import uz.tayanch.app.data.Interests
@@ -84,7 +86,13 @@ fun HomeScreen(
     onOpenQuiz: (String) -> Unit,
     vm: HomeViewModel = koinViewModel(),
 ) {
-    StateContent(vm.state, Modifier.padding(contentPadding).fillMaxSize(), onRetry = vm::load) { roadmap ->
+    StateContent(
+        vm.state,
+        Modifier
+            .padding(contentPadding)
+            .fillMaxSize(),
+        onRetry = vm::load
+    ) { roadmap ->
         HomeContent(
             roadmap, contentPadding, onOpenContent, onOpenFlashcard, onOpenQuiz,
             interests = vm.interests,
@@ -116,23 +124,36 @@ private fun HomeContent(
     }
 
     LazyColumn(
-        modifier = Modifier.padding(contentPadding).fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier
+            .padding(contentPadding)
+            .fillMaxSize()
     ) {
         // Interest switcher — only when the user picked more than one (each shows
         // its own roadmap). Pillar: shared screens follow the selected interests.
         if (interests.size > 1) {
             item {
                 Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                 ) {
                     interests.forEach { interest ->
                         FilterChip(
                             selected = interest.id == activeInterestId,
                             onClick = { onSelectInterest(interest.id) },
                             label = { Text("${interest.emoji} ${interest.name}") },
+                            border = null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(
+                                    alpha = 0.16f
+                                ),
+                                selectedLabelColor = MaterialTheme.colorScheme.primary,
+                            ),
                         )
                     }
                 }
@@ -165,7 +186,9 @@ private fun HomeContent(
 private fun LevelHeader(level: LevelDto) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
-            color = if (level.is_unlocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+            color = if (level.is_unlocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
+                alpha = 0.08f
+            ),
             shape = RoundedCornerShape(6.dp),
         ) {
             Text(
@@ -179,19 +202,44 @@ private fun LevelHeader(level: LevelDto) {
         Text(level.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         if (!level.is_unlocked) {
             Spacer(Modifier.width(6.dp))
-            Icon(Icons.Filled.Lock, contentDescription = stringResource(R.string.locked), modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                Icons.Filled.Lock,
+                contentDescription = stringResource(R.string.locked),
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
 @Composable
 private fun TopicCard(topic: TopicDto, onNode: (ContentNodeDto) -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    // Flat, borderless, shadowless container: it only groups the nodes via a
+    // soft fill — no outline, no elevation — so it never out-weights them.
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
         Column(Modifier.padding(14.dp)) {
             Text(topic.title, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(10.dp))
+            // Always show the full 5-type row, even for topics the user hasn't
+            // reached: any type the topic doesn't (yet) include renders as a
+            // locked placeholder so every row reads consistently.
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                topic.contents.forEach { node -> ContentNode(node, onNode) }
+                NODE_TYPE_ORDER.forEach { type ->
+                    val node = topic.contents.firstOrNull { it.type == type }
+                        ?: ContentNodeDto(
+                            content_id = "",
+                            type = type,
+                            title = "",
+                            reward_xp = 0,
+                            is_completed = false,
+                            is_locked = true,
+                        )
+                    ContentNode(node, onNode)
+                }
             }
         }
     }
@@ -200,23 +248,37 @@ private fun TopicCard(topic: TopicDto, onNode: (ContentNodeDto) -> Unit) {
 @Composable
 private fun ContentNode(node: ContentNodeDto, onNode: (ContentNodeDto) -> Unit) {
     val icon = iconFor(node.type)
+    // Emphasis goes to what to learn NEXT: available = inviting green, completed
+    // recedes to neutral (+ a green check), locked is faded.
+    val circleColor = when {
+        node.is_locked -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f)
+        node.is_completed -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+    }
     val tint = when {
         node.is_locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-        node.is_completed -> MaterialTheme.colorScheme.primary
+        node.is_completed -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.primary
+    }
+    val labelColor = when {
+        node.is_locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        node.is_completed -> MaterialTheme.colorScheme.onSurfaceVariant
         else -> MaterialTheme.colorScheme.onSurface
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(56.dp)) {
         Box(contentAlignment = Alignment.TopEnd) {
             Surface(
                 shape = CircleShape,
-                color = if (node.is_completed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                color = circleColor,
                 modifier = Modifier
                     .size(48.dp)
                     .clickable(enabled = !node.is_locked) { onNode(node) },
             ) {
                 Box(contentAlignment = Alignment.Center) {
+                    // Locked slots still show their content-type icon (greyed via
+                    // `tint`) so users can preview what the topic will contain.
                     Icon(
-                        if (node.is_locked) Icons.Filled.Lock else icon,
+                        icon,
                         contentDescription = node.type,
                         tint = tint,
                         modifier = Modifier.size(22.dp),
@@ -236,7 +298,7 @@ private fun ContentNode(node: ContentNodeDto, onNode: (ContentNodeDto) -> Unit) 
             stringResource(labelResFor(node.type)),
             style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = labelColor,
         )
     }
 }
@@ -252,27 +314,49 @@ private fun LevelAssignmentCard(level: LevelDto) {
     val launcher = if (LocalInspectionMode.current) {
         null
     } else {
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { showInstructions = true }
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            showInstructions = true
+        }
     }
 
     Card(
         Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.level_assignment_boss), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text(
+                stringResource(R.string.level_assignment_boss),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(Modifier.height(4.dp))
-            Text(level.assignment.title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                level.assignment.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(Modifier.height(12.dp))
             if (!level.is_unlocked) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Filled.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.level_unlock_xp, level.required_xp), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.level_unlock_xp, level.required_xp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             } else {
-                Button(
+                OutlinedButton(
                     enabled = !loading,
+                    shape = TayanchControl.Shape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(TayanchControl.Height),
                     onClick = {
                         loading = true
                         scope.launch {
@@ -285,9 +369,16 @@ private fun LevelAssignmentCard(level: LevelDto) {
                     },
                 ) {
                     if (loading) {
-                        CircularProgressIndicator(Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
+                        CircularProgressIndicator(
+                            Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     } else {
-                        Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.Filled.Download,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
                         Text("  " + stringResource(R.string.btn_get_task_pdf))
                     }
                 }
@@ -298,12 +389,27 @@ private fun LevelAssignmentCard(level: LevelDto) {
     if (showInstructions) {
         AlertDialog(
             onDismissRequest = { showInstructions = false },
-            confirmButton = { TextButton(onClick = { showInstructions = false }) { Text(stringResource(R.string.got_it)) } },
+            confirmButton = {
+                TextButton(onClick = { showInstructions = false }) {
+                    Text(
+                        stringResource(R.string.got_it)
+                    )
+                }
+            },
             title = { Text(stringResource(R.string.dialog_next_steps_title)) },
             text = { Text(stringResource(R.string.dialog_next_steps_body)) },
         )
     }
 }
+
+/** Canonical content-type order every topic row renders (read · web · video · cards · test). */
+private val NODE_TYPE_ORDER = listOf(
+    ContentType.MARKDOWN,
+    ContentType.WEBLINK,
+    ContentType.VIDEO,
+    ContentType.FLASHCARD,
+    ContentType.QUIZ,
+)
 
 private fun iconFor(type: String): ImageVector = when (type) {
     ContentType.MARKDOWN -> Icons.Filled.Article

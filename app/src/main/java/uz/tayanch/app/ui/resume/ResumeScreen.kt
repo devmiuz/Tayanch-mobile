@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.resume
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +62,7 @@ fun ResumeScreen(onBack: () -> Unit) {
         bottomBar = {
             Surface(shadowElevation = 8.dp) {
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
-                    Button(onClick = { saved = true }, modifier = Modifier.fillMaxWidth()) {
+                    Button(shape = TayanchControl.Shape, onClick = { saved = true }, modifier = Modifier.fillMaxWidth()) {
                         if (saved) {
                             Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                             Text("  " + stringResource(R.string.resume_saved))

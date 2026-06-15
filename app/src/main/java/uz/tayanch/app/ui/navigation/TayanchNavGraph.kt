@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +38,8 @@ fun TayanchNavGraph(startDestination: String) {
     val nav = rememberNavController()
 
     NavHost(
+        modifier = Modifier
+            .fillMaxSize(),
         navController = nav,
         startDestination = startDestination,
         // Outer host transitions: forward navigations slide in from the right and

@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.flashcard
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -109,10 +111,10 @@ private fun FlashcardDeck(
         }
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { onResult(false) }, modifier = Modifier.weight(1f)) {
+            OutlinedButton(shape = TayanchControl.Shape, onClick = { onResult(false) }, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.btn_review))
             }
-            Button(onClick = { onResult(true) }, modifier = Modifier.weight(1f)) {
+            Button(shape = TayanchControl.Shape, onClick = { onResult(true) }, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.btn_know_it))
             }
         }
@@ -190,7 +192,7 @@ private fun DeckCleared(xp: Int, onFinish: () -> Unit) {
         Spacer(Modifier.height(6.dp))
         Text(stringResource(R.string.xp_plus, xp), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(24.dp))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_back_roadmap)) }
+        Button(shape = TayanchControl.Shape, onClick = onFinish, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_back_roadmap)) }
     }
 }
 

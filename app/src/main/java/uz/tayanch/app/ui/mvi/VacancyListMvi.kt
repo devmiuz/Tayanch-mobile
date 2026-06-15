@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.mvi
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,7 +91,7 @@ fun VacancyListScreen(vm: VacancyMviViewModel) {
         }
 
         is UiState.Error -> Box(Modifier.fillMaxSize(), Alignment.Center) {
-            Button(onClick = { vm.onIntent(VacancyIntent.Retry) }) { Text("Qayta urinish") }
+            Button(shape = TayanchControl.Shape, onClick = { vm.onIntent(VacancyIntent.Retry) }) { Text("Qayta urinish") }
         }
 
         is UiState.Success -> LazyColumn(

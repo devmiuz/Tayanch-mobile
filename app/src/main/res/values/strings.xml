@@ -99,7 +99,7 @@
     <string name="profile_badges">Nishonlar</string>
     <string name="profile_leaderboard">Reyting</string>
     <string name="scope_major">Mutaxassisligim</string>
-    <string name="scope_global">Global</string>
+    <string name="scope_global">Xalqaro</string>
     <string name="profile_security_note">Profil /users/me orqali olinadi — shaxs JWT\'dan aniqlanadi, taxmin qilinadigan id orqali emas</string>
     <string name="btn_logout">Chiqish</string>
     <string name="btn_cancel">Bekor qilish</string>

@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.jobs
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -82,7 +84,7 @@ private fun JobDetailContent(
         bottomBar = {
             Surface(shadowElevation = 8.dp) {
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
-                    Button(
+                    Button(shape = TayanchControl.Shape, 
                         onClick = onApply,
                         enabled = !applied && !applying,
                         modifier = Modifier.fillMaxWidth(),

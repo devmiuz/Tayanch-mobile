@@ -3,6 +3,7 @@ package uz.tayanch.app
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
@@ -36,7 +37,22 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        // Fully transparent system bars (no contrast scrim) so the OS status &
+        // navigation bars show the app's own colors — otherwise edge-to-edge adds a
+        // white scrim to the nav bar (in 3-button mode) that mismatches the app's
+        // bottom NavigationBar.
+        val transparent = android.graphics.Color.TRANSPARENT
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(transparent, transparent),
+            navigationBarStyle = SystemBarStyle.auto(transparent, transparent),
+        )
+        // Stop the system from layering its own translucent contrast scrim behind
+        // the (3-button) nav bar — that white scrim is what made the OS nav bar a
+        // different shade than the app's bottom NavigationBar.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+            window.isStatusBarContrastEnforced = false
+        }
         super.onCreate(savedInstanceState)
 
         // Pillar 29 — runtime integrity: a rooted device weakens the Keystore/TEE

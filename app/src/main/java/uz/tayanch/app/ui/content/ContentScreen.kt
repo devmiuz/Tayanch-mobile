@@ -1,6 +1,8 @@
 package uz.tayanch.app.ui.content
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -11,14 +13,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,13 +43,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import org.koin.androidx.compose.koinViewModel
@@ -57,9 +66,12 @@ import uz.tayanch.app.ui.components.MarkdownText
 import uz.tayanch.app.ui.components.SecurityNote
 import uz.tayanch.app.ui.components.StateContent
 import uz.tayanch.app.ui.preview.PreviewSamples
+import uz.tayanch.app.ui.theme.TayanchControl
 import uz.tayanch.app.ui.theme.TayanchTheme
+import uz.tayanch.app.ui.theme.WarningAccent
 
 private const val DEMO_MS_PER_MINUTE = 5_000L // scaled down so the demo isn't tedious
+private const val WEBLINK_MIN_MS = 300_000L // external articles need real reading time: ≥5 minutes
 private const val EXIT_DISMISS_MS = 200L // let the dialog fade out before the screen slides away
 private const val VIDEO_DONE_FRACTION = 0.9f // watched ≥90% counts as completed
 
@@ -92,7 +104,11 @@ fun ContentScreen(
 // matches the actual video length instead of an arbitrary "learn time".
 // ---------------------------------------------------------------------------
 @Composable
-private fun VideoContentBody(content: ContentDetailDto, onFinish: () -> Unit, onCompleted: () -> Unit) {
+private fun VideoContentBody(
+    content: ContentDetailDto,
+    onFinish: () -> Unit,
+    onCompleted: () -> Unit
+) {
     var durationSec by remember { mutableIntStateOf(0) }
     var positionSec by remember { mutableIntStateOf(0) }
     var watchedSec by remember { mutableIntStateOf(0) }
@@ -106,7 +122,8 @@ private fun VideoContentBody(content: ContentDetailDto, onFinish: () -> Unit, on
         minOf((durationSec * VIDEO_DONE_FRACTION).toInt(), maxOf(content.estimated_minutes, 1) * 60)
     else Int.MAX_VALUE
     val completed = durationSec > 0 && watchedSec >= requiredSec
-    val progress = if (durationSec > 0) (watchedSec.toFloat() / requiredSec).coerceIn(0f, 1f) else 0f
+    val progress =
+        if (durationSec > 0) (watchedSec.toFloat() / requiredSec).coerceIn(0f, 1f) else 0f
     val timerLabel = if (durationSec <= 0) "…" else
         "${mmss(positionSec.coerceAtMost(durationSec))} / ${mmss(durationSec)}"
 
@@ -153,8 +170,20 @@ private fun VideoContentBody(content: ContentDetailDto, onFinish: () -> Unit, on
 // engine — time accrues only while resumed and actively interacting (Pillar 22).
 // ---------------------------------------------------------------------------
 @Composable
-private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, onCompleted: () -> Unit) {
-    val targetMs = remember(content) { maxOf(15_000L, content.estimated_minutes * DEMO_MS_PER_MINUTE) }
+private fun ReadingContentBody(
+    content: ContentDetailDto,
+    onFinish: () -> Unit,
+    onCompleted: () -> Unit
+) {
+    // External articles require genuine reading time (≥5 min); native/markdown
+    // articles stay on the compressed demo scale.
+    val targetMs = remember(content) {
+        if (content.type == ContentType.WEBLINK) {
+            maxOf(WEBLINK_MIN_MS, content.estimated_minutes * DEMO_MS_PER_MINUTE)
+        } else {
+            maxOf(15_000L, content.estimated_minutes * DEMO_MS_PER_MINUTE)
+        }
+    }
     // The idle prompt is paced to the learn time: at most 3 times, no sooner than
     // every (learn time / 3) of inactivity.
     val idleThresholdMs = remember(targetMs) { targetMs / 3 }
@@ -164,13 +193,17 @@ private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, 
     var isResumed by remember { mutableStateOf(true) }
     var isIdle by remember { mutableStateOf(false) }
     var idlePromptCount by remember { mutableIntStateOf(0) }
+    var showLeave by remember { mutableStateOf(false) }
     val completed = accumulatedMs >= targetMs
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME -> { isResumed = true; lastInteraction = SecureClock.nowMonotonic() }
+                Lifecycle.Event.ON_RESUME -> {
+                    isResumed = true; lastInteraction = SecureClock.nowMonotonic()
+                }
+
                 Lifecycle.Event.ON_PAUSE -> isResumed = false
                 else -> Unit
             }
@@ -183,15 +216,23 @@ private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, 
         while (true) {
             delay(200)
             val now = SecureClock.nowMonotonic()
+            // While the exit dialog is up, suspend idle detection & time accrual and
+            // keep the interaction clock fresh — so the "still here?" prompt can't
+            // queue up behind it, and idle timing restarts when the user resumes.
+            if (showLeave) {
+                lastInteraction = now
+                isIdle = false
+                continue
+            }
             isIdle = now - lastInteraction > idleThresholdMs
             if (isResumed && !isIdle && accumulatedMs < targetMs) accumulatedMs += 200
         }
     }
 
     val showIdleDialog = isIdle && !completed && idlePromptCount < 3
-    val dismissIdle: () -> Unit = { lastInteraction = SecureClock.nowMonotonic(); idlePromptCount++ }
+    val dismissIdle: () -> Unit =
+        { lastInteraction = SecureClock.nowMonotonic(); idlePromptCount++ }
 
-    var showLeave by remember { mutableStateOf(false) }
     val leaveScope = rememberCoroutineScope()
     val finishCompleted: () -> Unit = { onCompleted(); onFinish() }
     val confirmLeave: () -> Unit = {
@@ -214,7 +255,7 @@ private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, 
 
     ContentScaffold(
         title = content.title,
-        timerLabel = "⏱ ${remainingSec}s",
+        timerLabel = "⏱ ${mmss(remainingSec.toInt())}",
         progress = progress,
         completed = completed,
         rewardXp = content.reward_xp,
@@ -223,11 +264,20 @@ private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, 
         onFinish = finishCompleted,
         onLeave = { showLeave = true },
     ) {
-        Box(Modifier.fillMaxSize().then(trackTouches)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .then(trackTouches)
+        ) {
             if (content.type == ContentType.WEBLINK) {
                 HardenedWebView(url = content.url.orEmpty(), modifier = Modifier.fillMaxSize())
             } else {
-                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
                     SecurityNote(stringResource(R.string.content_presence_note))
                     Spacer(Modifier.height(12.dp))
                     MarkdownText(content.markdown.orEmpty())
@@ -251,18 +301,65 @@ private fun ReadingContentBody(content: ContentDetailDto, onFinish: () -> Unit, 
 
 @Composable
 private fun ForfeitDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(R.string.btn_leave)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_keep_reading)) } },
-        title = { Text(stringResource(R.string.dialog_forfeit_title)) },
-        text = { Text(stringResource(R.string.dialog_forfeit_body)) },
-    )
+    // Custom dialog (not AlertDialog): a plain surface with a yellowish warning
+    // icon. Leaving forfeits XP, so the recommended "keep reading" is the primary
+    // (filled) button and "exit" is the outlined secondary.
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 6.dp,
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    Icons.Filled.WarningAmber,
+                    contentDescription = null,
+                    tint = WarningAccent,
+                    modifier = Modifier.size(40.dp),
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    stringResource(R.string.dialog_forfeit_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    stringResource(R.string.dialog_forfeit_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(24.dp))
+                Button(
+                    onClick = onDismiss,
+                    shape = TayanchControl.Shape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(TayanchControl.Height),
+                ) { Text(stringResource(R.string.btn_keep_reading)) }
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onConfirm,
+                    shape = TayanchControl.Shape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(TayanchControl.Height),
+                ) { Text(stringResource(R.string.btn_leave)) }
+            }
+        }
+    }
 }
 
 /** Shared chrome: header (title + timer + progress), a content slot, and the footer. */
 @Composable
 private fun ContentScaffold(
+    modifier: Modifier = Modifier,
     title: String,
     timerLabel: String,
     progress: Float,
@@ -274,12 +371,33 @@ private fun ContentScaffold(
     onLeave: () -> Unit,
     body: @Composable BoxScope.() -> Unit,
 ) {
-    Column(Modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 2.dp) {
-            Column(Modifier.statusBarsPadding().padding(horizontal = 8.dp, vertical = 8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
-                    Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(top = 8.dp, bottom = 8.dp, end = 8.dp, start = 4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
                     Text(
                         if (completed) "✓ done" else timerLabel,
                         style = MaterialTheme.typography.labelLarge,
@@ -289,24 +407,37 @@ private fun ContentScaffold(
                 }
                 LinearProgressIndicator(
                     progress = { progress },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp)
                 )
             }
         }
 
         Box(Modifier.weight(1f), content = body)
 
-        Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
+        Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 12.dp) {
             Column(
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (completed) {
-                    Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = onFinish,
+                        shape = TayanchControl.Shape,
+                        modifier = Modifier.fillMaxWidth().height(TayanchControl.Height),
+                    ) {
                         Text(stringResource(R.string.btn_finish_earn_xp, rewardXp))
                     }
                 } else {
-                    Text(hint, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        hint,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     TextButton(onClick = onLeave) { Text(stringResource(R.string.btn_leave_forfeit)) }
                 }
             }

@@ -1,5 +1,7 @@
 package uz.tayanch.app.ui.auth
 
+import uz.tayanch.app.ui.theme.TayanchControl
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -69,7 +71,7 @@ fun OtpScreen(onBack: () -> Unit, onDone: () -> Unit) {
             )
 
             if (!codeSent) {
-                Button(onClick = { codeSent = true }, enabled = phone.count { it.isDigit() } >= 12, modifier = Modifier.fillMaxWidth()) {
+                Button(shape = TayanchControl.Shape, onClick = { codeSent = true }, enabled = phone.count { it.isDigit() } >= 12, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.otp_send_code))
                 }
             } else {
@@ -92,7 +94,7 @@ fun OtpScreen(onBack: () -> Unit, onDone: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(4.dp))
-                Button(
+                Button(shape = TayanchControl.Shape, 
                     onClick = onDone,
                     enabled = code.length >= 4 && estimatePassword(newPassword).score >= 3,
                     modifier = Modifier.fillMaxWidth(),
